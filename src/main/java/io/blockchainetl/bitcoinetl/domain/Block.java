@@ -37,6 +37,7 @@ public class Block {
     @JsonProperty("merkle_root")
     private String merkleRoot;
 
+    @Nullable
     @JsonProperty("timestamp")
     private Long timestamp;
 
@@ -50,6 +51,7 @@ public class Block {
     @JsonProperty("coinbase_param")
     private String coinbaseParam;
 
+    @Nullable
     @JsonProperty("transaction_count")
     private Long transactionCount;
 

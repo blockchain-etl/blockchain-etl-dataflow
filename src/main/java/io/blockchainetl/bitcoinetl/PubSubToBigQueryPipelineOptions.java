@@ -13,10 +13,10 @@ public interface PubSubToBigQueryPipelineOptions extends PipelineOptions, Stream
 
     void setDashPubSubSubscription(String value);
 
-    @Description("BigQuery table to write Dash data to")
-    String getDashBigQueryTable();
+    @Description("BigQuery dataset to write Dash data to")
+    String getDashBigQueryDataset();
 
-    void setDashBigQueryTable(String value);
+    void setDashBigQueryDataset(String value);
 
     @Description("Start timestamp for streaming the data e.g. 2018-12-01T01:00:00Z")
     @Validation.Required
