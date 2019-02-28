@@ -42,7 +42,7 @@ public class PubSubToBigQueryPipeline {
             PubsubIO.readStrings().fromSubscription(options.getDashPubSubSubscriptionPrefix() + ".blocks"));
         
         PCollection<TableRow> blocks = buildBlocksPipeline(
-            "Dash", options.getDashStartTimestamp(), blocksFromPubSub
+            "Dash", options.getDashStartTimestamp(), options.getAllowedTimestampSkewSeconds(), blocksFromPubSub
         );
 
         blocks.apply(
@@ -59,7 +59,7 @@ public class PubSubToBigQueryPipeline {
             PubsubIO.readStrings().fromSubscription(options.getDashPubSubSubscriptionPrefix() + ".transactions"));
         
         PCollection<TableRow> transactions = buildTransactionsPipeline(
-            "Dash", options.getDashStartTimestamp(), transactionsFromPubSub
+            "Dash", options.getDashStartTimestamp(), options.getAllowedTimestampSkewSeconds(), transactionsFromPubSub
         );
 
         transactions.apply(
@@ -77,24 +77,26 @@ public class PubSubToBigQueryPipeline {
     }
 
     public static PCollection<TableRow> buildBlocksPipeline(
-        String namePrefix, String startTimestamp, PCollection<String> input
+        String namePrefix, String startTimestamp, long allowedTimestampSkew, PCollection<String> input
     ) {
         PCollection<Block> blocks = input
             .apply(namePrefix + "ParseBlocks", ParDo.of(new ParseEntitiesFromJsonFn<>(Block.class)))
             .setCoder(AvroCoder.of(Block.class));
 
         return blocks
-            .apply(namePrefix + "ConvertBlocksToTableRows", ParDo.of(new ConvertBlocksToTableRowsFn(startTimestamp)));
+            .apply(namePrefix + "ConvertBlocksToTableRows", 
+                ParDo.of(new ConvertBlocksToTableRowsFn(startTimestamp, allowedTimestampSkew)));
     }
 
     public static PCollection<TableRow> buildTransactionsPipeline(
-        String namePrefix, String startTimestamp, PCollection<String> input
+        String namePrefix, String startTimestamp, long allowedTimestampSkew, PCollection<String> input
     ) {
         PCollection<Transaction> transactions = input
             .apply(namePrefix + "ParseTransactions", ParDo.of(new ParseEntitiesFromJsonFn<>(Transaction.class)))
             .setCoder(AvroCoder.of(Transaction.class));
 
         return transactions
-            .apply(namePrefix + "ConvertTransactionsToTableRows", ParDo.of(new ConvertTransactionsToTableRowsFn(startTimestamp)));
+            .apply(namePrefix + "ConvertTransactionsToTableRows", 
+                ParDo.of(new ConvertTransactionsToTableRowsFn(startTimestamp, allowedTimestampSkew)));
     }
 }

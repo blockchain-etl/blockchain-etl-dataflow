@@ -4,31 +4,27 @@ import com.google.api.services.bigquery.model.TableRow;
 import io.blockchainetl.bitcoinetl.domain.Transaction;
 import io.blockchainetl.bitcoinetl.domain.TransactionInput;
 import io.blockchainetl.bitcoinetl.domain.TransactionOutput;
+import io.blockchainetl.bitcoinetl.utils.TimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ConvertTransactionsToTableRowsFn extends ErrorHandlingDoFn<Transaction, TableRow> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConvertTransactionsToTableRowsFn.class);
-
-    private static final ZoneId UTC = ZoneId.of("UTC");
     
-    private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter
-        .ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(UTC);
-    private static final DateTimeFormatter TIMESTAMP_MONTH_FORMATTER = DateTimeFormatter
-        .ofPattern("yyyy-MM-dd").withZone(ZoneId.of("UTC"));
-
     private String startTimestamp;
+    private Long allowedTimestampSkewSeconds;
 
-    public ConvertTransactionsToTableRowsFn(String startTimestamp) {
+    public ConvertTransactionsToTableRowsFn(
+        String startTimestamp,
+        Long allowedTimestampSkewSeconds) {
         this.startTimestamp = startTimestamp;
+        this.allowedTimestampSkewSeconds = allowedTimestampSkewSeconds;
     }
 
     @Override
@@ -45,10 +41,9 @@ public class ConvertTransactionsToTableRowsFn extends ErrorHandlingDoFn<Transact
         row.set("block_number", transaction.getBlockNumber());
 
         if (transaction.getBlockTimestamp() != null) {
-            Instant blockInstant = Instant.ofEpochSecond(transaction.getBlockTimestamp());
-            ZonedDateTime blockTimestamp = ZonedDateTime.from(blockInstant.atZone(UTC));
-            row.set("block_timestamp", TIMESTAMP_FORMATTER.format(blockTimestamp));
-            row.set("block_timestamp_month", TIMESTAMP_MONTH_FORMATTER.format(blockTimestamp.withDayOfMonth(1)));
+            ZonedDateTime blockTimestamp = TimeUtils.convertToZonedDateTime(transaction.getBlockTimestamp());
+            row.set("block_timestamp", TimeUtils.formatTimestamp(blockTimestamp));
+            row.set("block_timestamp_month", TimeUtils.formatDate(blockTimestamp.withDayOfMonth(1)));
 
             row.set("input_count", transaction.getInputCount());
             row.set("output_count", transaction.getOutputCount());
@@ -63,13 +58,17 @@ public class ConvertTransactionsToTableRowsFn extends ErrorHandlingDoFn<Transact
             List<TableRow> outputTableRows = convertOutputs(transaction.getOutputs());
             row.set("outputs", outputTableRows);
 
-            ZonedDateTime startDateTime = ZonedDateTime.parse(this.startTimestamp, TIMESTAMP_FORMATTER);
+            ZonedDateTime startDateTime = TimeUtils.parseDateTime(this.startTimestamp);
+            ZonedDateTime currentDateTime = ZonedDateTime.now();
             
             if (blockTimestamp.isAfter(startDateTime) || blockTimestamp.isEqual(startDateTime)) {
                 LOG.info("Writing transaction " + transaction.getHash());
                 c.output(row);
+            } else if (ChronoUnit.MINUTES.between(blockTimestamp, currentDateTime) > this.allowedTimestampSkewSeconds) {
+                LOG.error("Block timestamp " + blockTimestamp + " for transaction " + transaction.getHash() + 
+                    " exceeds the maximum allowed time skew.");
             } else {
-                LOG.debug("Block time for transaction " + transaction.getHash() + " is before the startTimestamp.");
+                LOG.debug("Block timestamp for transaction " + transaction.getHash() + " is before the startTimestamp.");
             }
         } else {
             LOG.error("Block timestamp for transaction " + transaction.getHash() + " is null.");

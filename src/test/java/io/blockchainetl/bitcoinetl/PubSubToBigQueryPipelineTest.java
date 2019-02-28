@@ -31,13 +31,13 @@ public class PubSubToBigQueryPipelineTest {
             "testdata/PubSubToBigQueryPipelineTest/dashBlock1000000.json");
         PCollection<String> blocksCollection = p.apply("Blocks", Create.of(blockchainDataBlocks));
         PCollection<TableRow> blocks = PubSubToBigQueryPipeline.buildBlocksPipeline(
-            "Dash", "2018-01-01T00:00:00Z", blocksCollection);
+            "Dash", "2018-01-01T00:00:00Z", Long.MAX_VALUE, blocksCollection);
 
         List<String> blockchainDataTransactions = TestUtils.readLines(
             "testdata/PubSubToBigQueryPipelineTest/dashBlock1000000.json");
         PCollection<String> transactionsCollection = p.apply("Transactions", Create.of(blockchainDataTransactions));
         PCollection<TableRow> transactions = PubSubToBigQueryPipeline.buildTransactionsPipeline(
-            "Dash", "2018-01-01T00:00:00Z", transactionsCollection);
+            "Dash", "2018-01-01T00:00:00Z", Long.MAX_VALUE, transactionsCollection);
 
         PCollection<TableRow> allTableRows = PCollectionList.of(blocks).and(transactions)
             .apply("Flatten", Flatten.pCollections());

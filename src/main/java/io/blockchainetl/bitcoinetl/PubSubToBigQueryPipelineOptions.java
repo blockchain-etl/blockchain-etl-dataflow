@@ -1,5 +1,6 @@
 package io.blockchainetl.bitcoinetl;
 
+import org.apache.beam.sdk.options.Default;
 import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.SdkHarnessOptions;
@@ -9,11 +10,13 @@ import org.apache.beam.sdk.options.Validation;
 public interface PubSubToBigQueryPipelineOptions extends PipelineOptions, StreamingOptions, SdkHarnessOptions {
     
     @Description("Prefix for PubSub subscription to read Dash data from")
+    @Validation.Required
     String getDashPubSubSubscriptionPrefix();
 
     void setDashPubSubSubscriptionPrefix(String value);
 
     @Description("BigQuery dataset to write Dash data to")
+    @Validation.Required
     String getDashBigQueryDataset();
 
     void setDashBigQueryDataset(String value);
@@ -23,4 +26,10 @@ public interface PubSubToBigQueryPipelineOptions extends PipelineOptions, Stream
     String getDashStartTimestamp();
 
     void setDashStartTimestamp(String value);
+
+    @Description("Timestamp skew for blocks and transactions, messages older than this will be rejected")
+    @Default.Long(39600)
+    Long getAllowedTimestampSkewSeconds();
+
+    void setAllowedTimestampSkewSeconds(Long allowedTimestampSkewSeconds);
 }
