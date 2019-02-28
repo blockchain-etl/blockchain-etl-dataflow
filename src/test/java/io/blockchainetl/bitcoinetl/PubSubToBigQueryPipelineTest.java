@@ -16,7 +16,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.util.List;
-import java.util.Map;
 
 
 @RunWith(JUnit4.class)
@@ -28,16 +27,17 @@ public class PubSubToBigQueryPipelineTest {
     @Test
     @Category(ValidatesRunner.class)
     public void testDash() throws Exception {
-        List<String> blockchainDataStrings = TestUtils.readLines(
+        List<String> blockchainDataBlocks = TestUtils.readLines(
             "testdata/PubSubToBigQueryPipelineTest/dashBlock1000000.json");
+        PCollection<String> blocksCollection = p.apply("Blocks", Create.of(blockchainDataBlocks));
+        PCollection<TableRow> blocks = PubSubToBigQueryPipeline.buildBlocksPipeline(
+            "Dash", "2018-01-01T00:00:00Z", blocksCollection);
 
-        PCollection<String> blockchainData = p.apply("Blockchain", Create.of(blockchainDataStrings));
-
-        Map<String, PCollection<TableRow>> tableRows = PubSubToBigQueryPipeline.buildPipeline(
-            "2018-01-01T00:00:00Z", blockchainData);
-
-        PCollection<TableRow> blocks = tableRows.get("block");
-        PCollection<TableRow> transactions = tableRows.get("transaction");
+        List<String> blockchainDataTransactions = TestUtils.readLines(
+            "testdata/PubSubToBigQueryPipelineTest/dashBlock1000000.json");
+        PCollection<String> transactionsCollection = p.apply("Transactions", Create.of(blockchainDataTransactions));
+        PCollection<TableRow> transactions = PubSubToBigQueryPipeline.buildTransactionsPipeline(
+            "Dash", "2018-01-01T00:00:00Z", transactionsCollection);
 
         PCollection<TableRow> allTableRows = PCollectionList.of(blocks).and(transactions)
             .apply("Flatten", Flatten.pCollections());

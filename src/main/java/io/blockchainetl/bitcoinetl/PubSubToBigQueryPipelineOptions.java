@@ -8,10 +8,10 @@ import org.apache.beam.sdk.options.Validation;
 
 public interface PubSubToBigQueryPipelineOptions extends PipelineOptions, StreamingOptions, SdkHarnessOptions {
     
-    @Description("PubSub subscription to read Dash data from")
-    String getDashPubSubSubscription();
+    @Description("Prefix for PubSub subscription to read Dash data from")
+    String getDashPubSubSubscriptionPrefix();
 
-    void setDashPubSubSubscription(String value);
+    void setDashPubSubSubscriptionPrefix(String value);
 
     @Description("BigQuery dataset to write Dash data to")
     String getDashBigQueryDataset();
