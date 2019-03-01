@@ -1,17 +1,14 @@
 package io.blockchainetl.bitcoinetl;
 
 import com.google.api.services.bigquery.model.TableRow;
-import io.blockchainetl.bitcoinetl.domain.Block;
-import io.blockchainetl.bitcoinetl.domain.Transaction;
 import io.blockchainetl.bitcoinetl.fns.ConvertBlocksToTableRowsFn;
 import io.blockchainetl.bitcoinetl.fns.ConvertTransactionsToTableRowsFn;
-import io.blockchainetl.bitcoinetl.fns.ParseEntitiesFromJsonFn;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.PipelineResult;
-import org.apache.beam.sdk.coders.AvroCoder;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.io.gcp.pubsub.PubsubIO;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
+import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 import org.slf4j.Logger;
@@ -30,45 +27,31 @@ public class PubSubToBigQueryPipeline {
         PubSubToBigQueryPipelineOptions options =
             PipelineOptionsFactory.fromArgs(expandArgs(args)).withValidation().as(PubSubToBigQueryPipelineOptions.class);
 
-        runEthereumPipeline(options);
+        runPipeline(options);
     }
 
-    static void runEthereumPipeline(PubSubToBigQueryPipelineOptions options) throws InterruptedException {
+    static void runPipeline(PubSubToBigQueryPipelineOptions options) throws InterruptedException {
         Pipeline p = Pipeline.create(options);
 
         // Blocks
 
-        PCollection<String> blocksFromPubSub = p.apply("ReadBlocksFromPubSub",
-            PubsubIO.readStrings().fromSubscription(options.getDashPubSubSubscriptionPrefix() + ".blocks"));
-        
-        PCollection<TableRow> blocks = buildBlocksPipeline(
-            "Dash", options.getDashStartTimestamp(), options.getAllowedTimestampSkewSeconds(), blocksFromPubSub
+        buildPipeline(
+            p,
+            "DashBlocks",
+            options.getDashPubSubSubscriptionPrefix() + ".blocks",
+            new ConvertBlocksToTableRowsFn(options.getDashStartTimestamp(), options.getAllowedTimestampSkewSeconds()),
+            options.getDashBigQueryDataset() + ".blocks"
         );
-
-        blocks.apply(
-            "WriteBlocksToBigQuery",
-            BigQueryIO.writeTableRows()
-                .withoutValidation()
-                .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_NEVER)
-                .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_APPEND)
-                .to(options.getDashBigQueryDataset() + ".blocks"));
 
         // Transactions
 
-        PCollection<String> transactionsFromPubSub = p.apply("ReadTransactionsFromPubSub",
-            PubsubIO.readStrings().fromSubscription(options.getDashPubSubSubscriptionPrefix() + ".transactions"));
-        
-        PCollection<TableRow> transactions = buildTransactionsPipeline(
-            "Dash", options.getDashStartTimestamp(), options.getAllowedTimestampSkewSeconds(), transactionsFromPubSub
+        buildPipeline(
+            p,
+            "DashTransactions",
+            options.getDashPubSubSubscriptionPrefix() + ".transactions",
+            new ConvertTransactionsToTableRowsFn(options.getDashStartTimestamp(), options.getAllowedTimestampSkewSeconds()),
+            options.getDashBigQueryDataset() + ".transactions"
         );
-
-        transactions.apply(
-            "WriteTransactionsToBigQuery",
-            BigQueryIO.writeTableRows()
-                .withoutValidation()
-                .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_NEVER)
-                .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_APPEND)
-                .to(options.getDashBigQueryDataset() + ".transactions"));
 
         // Run pipeline
         
@@ -76,27 +59,38 @@ public class PubSubToBigQueryPipeline {
         LOG.info(pipelineResult.toString());
     }
 
-    public static PCollection<TableRow> buildBlocksPipeline(
-        String namePrefix, String startTimestamp, long allowedTimestampSkew, PCollection<String> input
+    public static PCollection<TableRow> buildPipeline(
+        Pipeline p,
+        String namePrefix,
+        String pubSubSubSubscription,
+        DoFn<String, TableRow> convertFn,
+        String bigQueryTable
     ) {
-        PCollection<Block> blocks = input
-            .apply(namePrefix + "ParseBlocks", ParDo.of(new ParseEntitiesFromJsonFn<>(Block.class)))
-            .setCoder(AvroCoder.of(Block.class));
+        PCollection<String> inputFromPubSub = p.apply(namePrefix + "ReadFromPubSub",
+            PubsubIO.readStrings().fromSubscription(pubSubSubSubscription));
 
-        return blocks
-            .apply(namePrefix + "ConvertBlocksToTableRows", 
-                ParDo.of(new ConvertBlocksToTableRowsFn(startTimestamp, allowedTimestampSkew)));
+        PCollection<TableRow> tableRows = buildPipeline(
+            namePrefix,
+            inputFromPubSub,
+            convertFn
+        );
+
+        tableRows.apply(
+            namePrefix + "WriteToBigQuery",
+            BigQueryIO.writeTableRows()
+                .withoutValidation()
+                .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_NEVER)
+                .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_APPEND)
+                .to(bigQueryTable));
+
+        return tableRows;
     }
 
-    public static PCollection<TableRow> buildTransactionsPipeline(
-        String namePrefix, String startTimestamp, long allowedTimestampSkew, PCollection<String> input
+    public static PCollection<TableRow> buildPipeline(
+        String namePrefix, 
+        PCollection<String> input,
+        DoFn<String, TableRow> convertFn
     ) {
-        PCollection<Transaction> transactions = input
-            .apply(namePrefix + "ParseTransactions", ParDo.of(new ParseEntitiesFromJsonFn<>(Transaction.class)))
-            .setCoder(AvroCoder.of(Transaction.class));
-
-        return transactions
-            .apply(namePrefix + "ConvertTransactionsToTableRows", 
-                ParDo.of(new ConvertTransactionsToTableRowsFn(startTimestamp, allowedTimestampSkew)));
+        return input.apply(namePrefix + "ConvertToTableRows", ParDo.of(convertFn));
     }
 }

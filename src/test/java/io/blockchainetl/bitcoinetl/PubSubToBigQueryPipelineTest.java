@@ -1,14 +1,14 @@
 package io.blockchainetl.bitcoinetl;
 
 import com.google.api.services.bigquery.model.TableRow;
+import io.blockchainetl.bitcoinetl.fns.ConvertBlocksToTableRowsFn;
+import io.blockchainetl.bitcoinetl.fns.ConvertTransactionsToTableRowsFn;
 import org.apache.beam.sdk.testing.PAssert;
 import org.apache.beam.sdk.testing.TestPipeline;
 import org.apache.beam.sdk.testing.ValidatesRunner;
 import org.apache.beam.sdk.transforms.Create;
-import org.apache.beam.sdk.transforms.Flatten;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.PCollectionList;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -26,28 +26,45 @@ public class PubSubToBigQueryPipelineTest {
 
     @Test
     @Category(ValidatesRunner.class)
-    public void testDash() throws Exception {
-        List<String> blockchainDataBlocks = TestUtils.readLines(
+    public void testDashBlocks() throws Exception {
+        List<String> blockchainData = TestUtils.readLines(
             "testdata/PubSubToBigQueryPipelineTest/dashBlock1000000.json");
-        PCollection<String> blocksCollection = p.apply("Blocks", Create.of(blockchainDataBlocks));
-        PCollection<TableRow> blocks = PubSubToBigQueryPipeline.buildBlocksPipeline(
-            "Dash", "2018-01-01T00:00:00Z", Long.MAX_VALUE, blocksCollection);
-
-        List<String> blockchainDataTransactions = TestUtils.readLines(
-            "testdata/PubSubToBigQueryPipelineTest/dashBlock1000000.json");
-        PCollection<String> transactionsCollection = p.apply("Transactions", Create.of(blockchainDataTransactions));
-        PCollection<TableRow> transactions = PubSubToBigQueryPipeline.buildTransactionsPipeline(
-            "Dash", "2018-01-01T00:00:00Z", Long.MAX_VALUE, transactionsCollection);
-
-        PCollection<TableRow> allTableRows = PCollectionList.of(blocks).and(transactions)
-            .apply("Flatten", Flatten.pCollections());
+        PCollection<String> collection = p.apply("Input", Create.of(blockchainData));
         
-        TestUtils.logPCollection(allTableRows);
+        PCollection<TableRow> tableRows = PubSubToBigQueryPipeline.buildPipeline(
+            "DashBlocks", 
+            collection,
+            new ConvertBlocksToTableRowsFn("2018-01-01T00:00:00Z", Long.MAX_VALUE)
+        );
+       
+        TestUtils.logPCollection(tableRows);
 
-        PAssert.that(allTableRows.apply("TransactionTableRowsToStringsFn", ParDo.of(new TableRowsToStringsFn())))
+        PAssert.that(tableRows.apply("TableRowsToStringsFn", ParDo.of(new TableRowsToStringsFn())))
             .containsInAnyOrder(TestUtils.readLines(
             "testdata/PubSubToBigQueryPipelineTest/dashBlock1000000Expected.json"));
         
+        p.run().waitUntilFinish();
+    }
+
+    @Test
+    @Category(ValidatesRunner.class)
+    public void testDashTransactions() throws Exception {
+        List<String> blockchainData = TestUtils.readLines(
+            "testdata/PubSubToBigQueryPipelineTest/dashBlock1000000Transactions.json");
+        PCollection<String> collection = p.apply("Input", Create.of(blockchainData));
+
+        PCollection<TableRow> tableRows = PubSubToBigQueryPipeline.buildPipeline(
+            "DashTransactions",
+            collection,
+            new ConvertTransactionsToTableRowsFn("2018-01-01T00:00:00Z", Long.MAX_VALUE)
+        );
+
+        TestUtils.logPCollection(tableRows);
+
+        PAssert.that(tableRows.apply("TableRowsToStringsFn", ParDo.of(new TableRowsToStringsFn())))
+            .containsInAnyOrder(TestUtils.readLines(
+                "testdata/PubSubToBigQueryPipelineTest/dashBlock1000000TransactionsExpected.json"));
+
         p.run().waitUntilFinish();
     }
 }
