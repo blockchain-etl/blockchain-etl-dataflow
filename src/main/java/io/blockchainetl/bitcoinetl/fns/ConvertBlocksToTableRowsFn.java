@@ -10,6 +10,10 @@ public class ConvertBlocksToTableRowsFn extends ConvertEntitiesToTableRowsFn {
         super(startTimestamp, allowedTimestampSkewSeconds);
     }
 
+    public ConvertBlocksToTableRowsFn(String startTimestamp, Long allowedTimestampSkewSeconds, String logPrefix) {
+        super(startTimestamp, allowedTimestampSkewSeconds, logPrefix);
+    }
+
     @Override
     protected void populateTableRowFields(TableRow row, String element) {
         Block block = JsonUtils.parseJson(element, Block.class);

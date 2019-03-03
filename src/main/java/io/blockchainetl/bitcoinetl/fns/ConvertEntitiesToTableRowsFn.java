@@ -17,8 +17,15 @@ public abstract class ConvertEntitiesToTableRowsFn extends ErrorHandlingDoFn<Str
 
     private String startTimestamp;
     private Long allowedTimestampSkewSeconds;
+    private String logPrefix = "";
 
-    ConvertEntitiesToTableRowsFn(String startTimestamp, Long allowedTimestampSkewSeconds) {
+    ConvertEntitiesToTableRowsFn(String startTimestamp, Long allowedTimestampSkewSeconds, String logPrefix) {
+        this.startTimestamp = startTimestamp;
+        this.allowedTimestampSkewSeconds = allowedTimestampSkewSeconds;
+        this.logPrefix = logPrefix;
+    }
+
+    public ConvertEntitiesToTableRowsFn(String startTimestamp, Long allowedTimestampSkewSeconds) {
         this.startTimestamp = startTimestamp;
         this.allowedTimestampSkewSeconds = allowedTimestampSkewSeconds;
     }
@@ -34,7 +41,7 @@ public abstract class ConvertEntitiesToTableRowsFn extends ErrorHandlingDoFn<Str
         } else if (jsonNode.get("block_timestamp") != null) {
             timestampFieldName = "block_timestamp";
         } else {
-            LOG.error("Element doesn't have timestamp field " + element);
+            LOG.error(logPrefix + "Element doesn't have timestamp field " + element);
             return;
         }
 
@@ -50,14 +57,14 @@ public abstract class ConvertEntitiesToTableRowsFn extends ErrorHandlingDoFn<Str
         if (this.allowedTimestampSkewSeconds != null &&
             ChronoUnit.SECONDS.between(dateTime, currentDateTime) > this.allowedTimestampSkewSeconds
             ) {
-            LOG.error(String.format("Timestamp %s for entity %s of type %s exceeds the maximum allowed time skew.",
+            LOG.error(logPrefix + String.format("Timestamp %s for entity %s of type %s exceeds the maximum allowed time skew.",
                 dateTime, jsonNode.get("hash"), jsonNode.get("type")));
         } else if (this.startTimestamp != null && dateTime.isBefore(TimeUtils.parseDateTime(this.startTimestamp))) {
-            LOG.debug(String.format("Timestamp for entity %s fo type %s is before the startTimestamp.",
+            LOG.debug(logPrefix + String.format("Timestamp for entity %s fo type %s is before the startTimestamp.",
                 jsonNode.get("hash"), jsonNode.get("type")));
         } else {
             populateTableRowFields(row, element);
-            LOG.info(String.format("Writing table row for entity %s of type %s.",
+            LOG.info(logPrefix + String.format("Writing table row for entity %s of type %s.",
                 jsonNode.get("hash"), jsonNode.get("type")));
             c.output(row);
         }

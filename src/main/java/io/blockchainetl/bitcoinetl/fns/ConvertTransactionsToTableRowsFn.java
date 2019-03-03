@@ -15,6 +15,10 @@ public class ConvertTransactionsToTableRowsFn extends ConvertEntitiesToTableRows
         super(startTimestamp, allowedTimestampSkewSeconds);
     }
 
+    public ConvertTransactionsToTableRowsFn(String startTimestamp, Long allowedTimestampSkewSeconds, String logPrefix) {
+        super(startTimestamp, allowedTimestampSkewSeconds, logPrefix);
+    }
+
     @Override
     protected void populateTableRowFields(TableRow row, String element) {
         Transaction transaction = JsonUtils.parseJson(element, Transaction.class);

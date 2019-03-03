@@ -51,7 +51,8 @@ public class PubSubToBigQueryPipeline {
                 p,
                 chainConfig.getTransformNamePrefix() + "Blocks",
                 chainConfig.getPubSubSubscriptionPrefix() + ".blocks",
-                new ConvertBlocksToTableRowsFn(chainConfig.getStartTimestamp(), options.getAllowedTimestampSkewSeconds()),
+                new ConvertBlocksToTableRowsFn(chainConfig.getStartTimestamp(), options.getAllowedTimestampSkewSeconds(),
+                    chainConfig.getTransformNamePrefix() + ": "),
                 chainConfig.getBigQueryDataset() + ".blocks"
             );
 
@@ -61,7 +62,8 @@ public class PubSubToBigQueryPipeline {
                 p,
                 chainConfig.getTransformNamePrefix() + "Transactions",
                 chainConfig.getPubSubSubscriptionPrefix() + ".transactions",
-                new ConvertTransactionsToTableRowsFn(chainConfig.getStartTimestamp(), options.getAllowedTimestampSkewSeconds()),
+                new ConvertTransactionsToTableRowsFn(chainConfig.getStartTimestamp(), options.getAllowedTimestampSkewSeconds(),
+                    chainConfig.getTransformNamePrefix() + ": "),
                 chainConfig.getBigQueryDataset() + ".transactions"
             );  
         }
