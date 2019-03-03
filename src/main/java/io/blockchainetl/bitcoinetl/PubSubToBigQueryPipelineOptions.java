@@ -1,6 +1,5 @@
 package io.blockchainetl.bitcoinetl;
 
-import org.apache.beam.sdk.options.Default;
 import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.SdkHarnessOptions;
@@ -28,7 +27,6 @@ public interface PubSubToBigQueryPipelineOptions extends PipelineOptions, Stream
     void setDashStartTimestamp(String value);
 
     @Description("Timestamp skew for blocks and transactions, messages older than this will be rejected")
-    @Default.Long(39600)
     Long getAllowedTimestampSkewSeconds();
 
     void setAllowedTimestampSkewSeconds(Long allowedTimestampSkewSeconds);
