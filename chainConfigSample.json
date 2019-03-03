@@ -1,0 +1,8 @@
+[
+    {
+        "transformNamePrefix": "Bitcoin",
+        "pubSubSubscriptionPrefix": "projects/your-project/subscriptions/crypto_bitcoin.dataflow.bigquery",
+        "bigQueryDataset": "crypto_bitcoin",
+        "startTimestamp": "2019-03-02T00:00:00Z"
+    }
+]

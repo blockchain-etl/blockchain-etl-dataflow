@@ -8,23 +8,11 @@ import org.apache.beam.sdk.options.Validation;
 
 public interface PubSubToBigQueryPipelineOptions extends PipelineOptions, StreamingOptions, SdkHarnessOptions {
     
-    @Description("Prefix for PubSub subscription to read Dash data from")
+    @Description("JSON file containing chain configuration")
     @Validation.Required
-    String getDashPubSubSubscriptionPrefix();
+    String getChainConfigFile();
 
-    void setDashPubSubSubscriptionPrefix(String value);
-
-    @Description("BigQuery dataset to write Dash data to")
-    @Validation.Required
-    String getDashBigQueryDataset();
-
-    void setDashBigQueryDataset(String value);
-
-    @Description("Start timestamp for streaming the data e.g. 2018-12-01T01:00:00Z")
-    @Validation.Required
-    String getDashStartTimestamp();
-
-    void setDashStartTimestamp(String value);
+    void setChainConfigFile(String value);
 
     @Description("Timestamp skew for blocks and transactions, messages older than this will be rejected")
     Long getAllowedTimestampSkewSeconds();

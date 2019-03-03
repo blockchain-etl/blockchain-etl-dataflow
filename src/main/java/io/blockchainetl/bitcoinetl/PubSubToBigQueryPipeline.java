@@ -1,8 +1,11 @@
 package io.blockchainetl.bitcoinetl;
 
 import com.google.api.services.bigquery.model.TableRow;
+import io.blockchainetl.bitcoinetl.domain.ChainConfig;
 import io.blockchainetl.bitcoinetl.fns.ConvertBlocksToTableRowsFn;
 import io.blockchainetl.bitcoinetl.fns.ConvertTransactionsToTableRowsFn;
+import io.blockchainetl.bitcoinetl.utils.FileUtils;
+import io.blockchainetl.bitcoinetl.utils.JsonUtils;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
@@ -11,10 +14,13 @@ import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
+import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.List;
 
 import static io.blockchainetl.bitcoinetl.utils.ConfigUtils.expandArgs;
 
@@ -33,30 +39,46 @@ public class PubSubToBigQueryPipeline {
     static void runPipeline(PubSubToBigQueryPipelineOptions options) throws InterruptedException {
         Pipeline p = Pipeline.create(options);
 
-        // Blocks
+        
+        List<ChainConfig> chainConfigs = readChainConfigs(options.getChainConfigFile());
+        
+        if (chainConfigs.isEmpty()) {
+            throw new RuntimeException("Chain configs can't be empty");
+        }
 
-        buildPipeline(
-            p,
-            "DashBlocks",
-            options.getDashPubSubSubscriptionPrefix() + ".blocks",
-            new ConvertBlocksToTableRowsFn(options.getDashStartTimestamp(), options.getAllowedTimestampSkewSeconds()),
-            options.getDashBigQueryDataset() + ".blocks"
-        );
+        for (ChainConfig chainConfig : chainConfigs) {
+            // Blocks
 
-        // Transactions
+            buildPipeline(
+                p,
+                chainConfig.getTransformNamePrefix() + "Blocks",
+                chainConfig.getPubSubSubscriptionPrefix() + ".blocks",
+                new ConvertBlocksToTableRowsFn(chainConfig.getStartTimestamp(), options.getAllowedTimestampSkewSeconds()),
+                chainConfig.getBigQueryDataset() + ".blocks"
+            );
 
-        buildPipeline(
-            p,
-            "DashTransactions",
-            options.getDashPubSubSubscriptionPrefix() + ".transactions",
-            new ConvertTransactionsToTableRowsFn(options.getDashStartTimestamp(), options.getAllowedTimestampSkewSeconds()),
-            options.getDashBigQueryDataset() + ".transactions"
-        );
+            // Transactions
+
+            buildPipeline(
+                p,
+                chainConfig.getTransformNamePrefix() + "Transactions",
+                chainConfig.getPubSubSubscriptionPrefix() + ".transactions",
+                new ConvertTransactionsToTableRowsFn(chainConfig.getStartTimestamp(), options.getAllowedTimestampSkewSeconds()),
+                chainConfig.getBigQueryDataset() + ".transactions"
+            );  
+        }
 
         // Run pipeline
         
         PipelineResult pipelineResult = p.run();
         LOG.info(pipelineResult.toString());
+    }
+
+    private static List<ChainConfig> readChainConfigs(String file) {
+        String fileContents = FileUtils.readFile(file, Charset.forName("UTF-8"));
+        List<ChainConfig> result = JsonUtils.parseJson(fileContents, new TypeReference<List<ChainConfig>>() {
+        });
+        return result;
     }
 
     public static PCollection<TableRow> buildPipeline(
