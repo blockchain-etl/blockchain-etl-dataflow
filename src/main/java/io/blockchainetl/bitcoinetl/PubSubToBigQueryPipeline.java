@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import static io.blockchainetl.bitcoinetl.utils.ConfigUtils.expandArgs;
-
 
 public class PubSubToBigQueryPipeline {
 
@@ -31,7 +29,7 @@ public class PubSubToBigQueryPipeline {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         PubSubToBigQueryPipelineOptions options =
-            PipelineOptionsFactory.fromArgs(expandArgs(args)).withValidation().as(PubSubToBigQueryPipelineOptions.class);
+            PipelineOptionsFactory.fromArgs(args).withValidation().as(PubSubToBigQueryPipelineOptions.class);
 
         runPipeline(options);
     }
