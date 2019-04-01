@@ -9,12 +9,15 @@ import io.blockchainetl.bitcoinetl.utils.JsonUtils;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
+import org.apache.beam.sdk.io.gcp.bigquery.InsertRetryPolicy;
+import org.apache.beam.sdk.io.gcp.bigquery.WriteResult;
 import org.apache.beam.sdk.io.gcp.pubsub.PubsubIO;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 import org.codehaus.jackson.type.TypeReference;
+import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,12 +100,26 @@ public class PubSubToBigQueryPipeline {
             convertFn
         );
 
-        tableRows.apply(
+        WriteResult writeResult = tableRows.apply(
             namePrefix + "WriteToBigQuery",
             BigQueryIO.writeTableRows()
                 .withoutValidation()
                 .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_NEVER)
                 .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_APPEND)
+                .withFailedInsertRetryPolicy(InsertRetryPolicy.retryTransientErrors())
+                .to(bigQueryTable));
+
+        // There is a limit in BigQuery of 1MB per record for streaming inserts. To handle such cases we use file loads
+        // where the limit is 100MB per record.
+        writeResult.getFailedInserts().apply(
+            namePrefix + "TryWriteFailedRecordsToBigQuery",
+            BigQueryIO.writeTableRows()
+                .withoutValidation()
+                .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_NEVER)
+                .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_APPEND)
+                .withMethod(BigQueryIO.Write.Method.FILE_LOADS)
+                .withNumFileShards(1)
+                .withTriggeringFrequency(Duration.standardMinutes(10))
                 .to(bigQueryTable));
 
         return tableRows;

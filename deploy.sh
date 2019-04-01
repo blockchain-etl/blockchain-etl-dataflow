@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 
-mvn -Pdataflow-runner compile exec:java \
+mvn -e -Pdataflow-runner compile exec:java \
 -Dexec.mainClass=io.blockchainetl.bitcoinetl.PubSubToBigQueryPipeline \
 -Dexec.args="--chainConfigFile=chainConfigDev.json \
 --allowedTimestampSkewSeconds=36000 \
 --gcpTempLocation=gs://your-temp-bucket/dataflow \
+--tempLocation=gs://your-temp-bucket/dataflow \
 --project=your-project \
 --runner=DataflowRunner \
 --jobName=crypto-etl-pubsub-to-bigquery \
