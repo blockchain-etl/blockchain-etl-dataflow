@@ -8,6 +8,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.math.BigInteger;
+import java.util.List;
 
 @DefaultCoder(AvroCoder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -62,7 +63,7 @@ public class Trace {
 
     @Nullable
     @JsonProperty("trace_address")
-    private String traceAddress;
+    private List<Long> traceAddress;
 
     @Nullable
     private String error;
@@ -73,6 +74,14 @@ public class Trace {
     @Nullable
     @JsonProperty("block_timestamp")
     private Long blockTimestamp;
+
+    @Nullable
+    @JsonProperty("block_number")
+    private Long blockNumber;
+
+    @Nullable
+    @JsonProperty("block_hash")
+    private String blockHash;
     
     public Trace() {}
 
@@ -180,11 +189,11 @@ public class Trace {
         this.subtraces = subtraces;
     }
 
-    public String getTraceAddress() {
+    public List<Long> getTraceAddress() {
         return traceAddress;
     }
 
-    public void setTraceAddress(String traceAddress) {
+    public void setTraceAddress(List<Long> traceAddress) {
         this.traceAddress = traceAddress;
     }
 
@@ -212,6 +221,22 @@ public class Trace {
         this.blockTimestamp = blockTimestamp;
     }
 
+    public Long getBlockNumber() {
+        return blockNumber;
+    }
+
+    public void setBlockNumber(Long blockNumber) {
+        this.blockNumber = blockNumber;
+    }
+
+    public String getBlockHash() {
+        return blockHash;
+    }
+
+    public void setBlockHash(String blockHash) {
+        this.blockHash = blockHash;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -237,14 +262,17 @@ public class Trace {
             Objects.equal(traceAddress, trace.traceAddress) &&
             Objects.equal(error, trace.error) &&
             Objects.equal(status, trace.status) &&
-            Objects.equal(blockTimestamp, trace.blockTimestamp);
+            Objects.equal(blockTimestamp, trace.blockTimestamp) &&
+            Objects.equal(blockNumber, trace.blockNumber) &&
+            Objects.equal(blockHash, trace.blockHash);
     }
 
     @Override
     public int hashCode() {
         return Objects.hashCode(transactionHash, transactionIndex, fromAddress, toAddress, value, input, output,
             traceType,
-            callType, rewardType, gas, gasUsed, subtraces, traceAddress, error, status, blockTimestamp);
+            callType, rewardType, gas, gasUsed, subtraces, traceAddress, error, status, blockTimestamp, blockNumber,
+            blockHash);
     }
 
     @Override
@@ -267,6 +295,8 @@ public class Trace {
             .add("error", error)
             .add("status", status)
             .add("blockTimestamp", blockTimestamp)
+            .add("blockNumber", blockNumber)
+            .add("blockHash", blockHash)
             .toString();
     }
 }

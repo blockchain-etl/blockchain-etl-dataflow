@@ -37,6 +37,14 @@ public class Contract {
     @Nullable
     @JsonProperty("block_timestamp")
     private Long blockTimestamp;
+
+    @Nullable
+    @JsonProperty("block_number")
+    private Long blockNumber;
+
+    @Nullable
+    @JsonProperty("block_hash")
+    private String blockHash;
     
     public Contract() {}
 
@@ -96,6 +104,22 @@ public class Contract {
         this.blockTimestamp = blockTimestamp;
     }
 
+    public Long getBlockNumber() {
+        return blockNumber;
+    }
+
+    public void setBlockNumber(Long blockNumber) {
+        this.blockNumber = blockNumber;
+    }
+
+    public String getBlockHash() {
+        return blockHash;
+    }
+
+    public void setBlockHash(String blockHash) {
+        this.blockHash = blockHash;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -111,12 +135,16 @@ public class Contract {
             Objects.equal(functionSighashes, contract.functionSighashes) &&
             Objects.equal(isErc20, contract.isErc20) &&
             Objects.equal(isErc721, contract.isErc721) &&
-            Objects.equal(blockTimestamp, contract.blockTimestamp);
+            Objects.equal(blockTimestamp, contract.blockTimestamp) &&
+            Objects.equal(blockNumber, contract.blockNumber) &&
+            Objects.equal(blockHash, contract.blockHash);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(type, address, bytecode, functionSighashes, isErc20, isErc721, blockTimestamp);
+        return Objects.hashCode(type, address, bytecode, functionSighashes, isErc20, isErc721, blockTimestamp,
+            blockNumber,
+            blockHash);
     }
 
     @Override
@@ -129,6 +157,8 @@ public class Contract {
             .add("isErc20", isErc20)
             .add("isErc721", isErc721)
             .add("blockTimestamp", blockTimestamp)
+            .add("blockNumber", blockNumber)
+            .add("blockHash", blockHash)
             .toString();
     }
 }

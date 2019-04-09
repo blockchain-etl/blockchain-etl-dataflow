@@ -5,7 +5,11 @@ import io.blockchainetl.common.PubSubToBigQueryPipeline;
 import io.blockchainetl.common.TableRowsToStringsFn;
 import io.blockchainetl.common.TestUtils;
 import io.blockchainetl.ethereum.fns.ConvertBlocksToTableRowsFn;
+import io.blockchainetl.ethereum.fns.ConvertContractsToTableRowsFn;
 import io.blockchainetl.ethereum.fns.ConvertLogsToTableRowsFn;
+import io.blockchainetl.ethereum.fns.ConvertTokenTransfersToTableRowsFn;
+import io.blockchainetl.ethereum.fns.ConvertTokensToTableRowsFn;
+import io.blockchainetl.ethereum.fns.ConvertTracesToTableRowsFn;
 import io.blockchainetl.ethereum.fns.ConvertTransactionsToTableRowsFn;
 import org.apache.beam.sdk.testing.PAssert;
 import org.apache.beam.sdk.testing.TestPipeline;
@@ -57,6 +61,46 @@ public class EthereumPubSubToBigQueryPipelineTest {
             "testdata/PubSubToBigQueryPipelineTest/ethereum/ethereumBlock1000000Logs.json",
             "testdata/PubSubToBigQueryPipelineTest/ethereum/ethereumBlock1000000LogsExpected.json",
             new ConvertLogsToTableRowsFn("2015-01-01T00:00:00Z", Long.MAX_VALUE)
+        );
+    }
+
+    @Test
+    @Category(ValidatesRunner.class)
+    public void testEthereumTokenTransfers() throws Exception {
+        testTemplate(
+            "testdata/PubSubToBigQueryPipelineTest/ethereum/ethereumBlock1755634TokenTransfers.json",
+            "testdata/PubSubToBigQueryPipelineTest/ethereum/ethereumBlock1755634TokenTransfersExpected.json",
+            new ConvertTokenTransfersToTableRowsFn("2015-01-01T00:00:00Z", Long.MAX_VALUE)
+        );
+    }
+
+    @Test
+    @Category(ValidatesRunner.class)
+    public void testEthereumTraces() throws Exception {
+        testTemplate(
+            "testdata/PubSubToBigQueryPipelineTest/ethereum/ethereumBlock2112234Traces.json",
+            "testdata/PubSubToBigQueryPipelineTest/ethereum/ethereumBlock2112234TracesExpected.json",
+            new ConvertTracesToTableRowsFn("2015-01-01T00:00:00Z", Long.MAX_VALUE)
+        );
+    }
+
+    @Test
+    @Category(ValidatesRunner.class)
+    public void testEthereumContracts() throws Exception {
+        testTemplate(
+            "testdata/PubSubToBigQueryPipelineTest/ethereum/ethereumBlock2112234Contracts.json",
+            "testdata/PubSubToBigQueryPipelineTest/ethereum/ethereumBlock2112234ContractsExpected.json",
+            new ConvertContractsToTableRowsFn("2015-01-01T00:00:00Z", Long.MAX_VALUE)
+        );
+    }
+
+    @Test
+    @Category(ValidatesRunner.class)
+    public void testEthereumTokens() throws Exception {
+        testTemplate(
+            "testdata/PubSubToBigQueryPipelineTest/ethereum/ethereumBlock2112234Tokens.json",
+            "testdata/PubSubToBigQueryPipelineTest/ethereum/ethereumBlock2112234TokensExpected.json",
+            new ConvertTokensToTableRowsFn("2015-01-01T00:00:00Z", Long.MAX_VALUE)
         );
     }
     

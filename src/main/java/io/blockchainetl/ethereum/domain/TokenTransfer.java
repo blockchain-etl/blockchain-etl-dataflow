@@ -39,6 +39,14 @@ public class TokenTransfer {
     @Nullable
     @JsonProperty("block_timestamp")
     private Long blockTimestamp;
+
+    @Nullable
+    @JsonProperty("block_number")
+    private Long blockNumber;
+
+    @Nullable
+    @JsonProperty("block_hash")
+    private String blockHash;
     
     public TokenTransfer() {}
 
@@ -98,6 +106,22 @@ public class TokenTransfer {
         this.blockTimestamp = blockTimestamp;
     }
 
+    public Long getBlockNumber() {
+        return blockNumber;
+    }
+
+    public void setBlockNumber(Long blockNumber) {
+        this.blockNumber = blockNumber;
+    }
+
+    public String getBlockHash() {
+        return blockHash;
+    }
+
+    public void setBlockHash(String blockHash) {
+        this.blockHash = blockHash;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -113,12 +137,15 @@ public class TokenTransfer {
             Objects.equal(value, that.value) &&
             Objects.equal(transactionHash, that.transactionHash) &&
             Objects.equal(logIndex, that.logIndex) &&
-            Objects.equal(blockTimestamp, that.blockTimestamp);
+            Objects.equal(blockTimestamp, that.blockTimestamp) &&
+            Objects.equal(blockNumber, that.blockNumber) &&
+            Objects.equal(blockHash, that.blockHash);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(tokenAddress, fromAddress, toAddress, value, transactionHash, logIndex, blockTimestamp);
+        return Objects.hashCode(tokenAddress, fromAddress, toAddress, value, transactionHash, logIndex, blockTimestamp,
+            blockNumber, blockHash);
     }
 
     @Override
@@ -131,6 +158,8 @@ public class TokenTransfer {
             .add("transactionHash", transactionHash)
             .add("logIndex", logIndex)
             .add("blockTimestamp", blockTimestamp)
+            .add("blockNumber", blockNumber)
+            .add("blockHash", blockHash)
             .toString();
     }
 }

@@ -34,6 +34,14 @@ public class Token {
     @Nullable
     @JsonProperty("block_timestamp")
     private Long blockTimestamp;
+
+    @Nullable
+    @JsonProperty("block_number")
+    private Long blockNumber;
+
+    @Nullable
+    @JsonProperty("block_hash")
+    private String blockHash;
     
     public Token() {}
 
@@ -93,6 +101,22 @@ public class Token {
         this.blockTimestamp = blockTimestamp;
     }
 
+    public Long getBlockNumber() {
+        return blockNumber;
+    }
+
+    public void setBlockNumber(Long blockNumber) {
+        this.blockNumber = blockNumber;
+    }
+
+    public String getBlockHash() {
+        return blockHash;
+    }
+
+    public void setBlockHash(String blockHash) {
+        this.blockHash = blockHash;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -108,12 +132,15 @@ public class Token {
             Objects.equal(name, token.name) &&
             Objects.equal(decimals, token.decimals) &&
             Objects.equal(totalSupply, token.totalSupply) &&
-            Objects.equal(blockTimestamp, token.blockTimestamp);
+            Objects.equal(blockTimestamp, token.blockTimestamp) &&
+            Objects.equal(blockNumber, token.blockNumber) &&
+            Objects.equal(blockHash, token.blockHash);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(type, address, symbol, name, decimals, totalSupply, blockTimestamp);
+        return Objects.hashCode(type, address, symbol, name, decimals, totalSupply, blockTimestamp, blockNumber,
+            blockHash);
     }
 
     @Override
@@ -126,6 +153,8 @@ public class Token {
             .add("decimals", decimals)
             .add("totalSupply", totalSupply)
             .add("blockTimestamp", blockTimestamp)
+            .add("blockNumber", blockNumber)
+            .add("blockHash", blockHash)
             .toString();
     }
 }
