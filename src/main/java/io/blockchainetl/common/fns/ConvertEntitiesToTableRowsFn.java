@@ -58,15 +58,25 @@ public abstract class ConvertEntitiesToTableRowsFn extends ErrorHandlingDoFn<Str
         if (this.allowedTimestampSkewSeconds != null &&
             ChronoUnit.SECONDS.between(dateTime, currentDateTime) > this.allowedTimestampSkewSeconds
             ) {
-            LOG.error(logPrefix + String.format("Timestamp %s for entity %s of type %s exceeds the maximum allowed time skew.",
-                dateTime, jsonNode.get("hash"), jsonNode.get("type")));
+            LOG.error(logPrefix + String.format("Timestamp %s exceeds the maximum allowed time skew: %s.",
+                dateTime, element));
         } else if (this.startTimestamp != null && dateTime.isBefore(TimeUtils.parseDateTime(this.startTimestamp))) {
-            LOG.debug(logPrefix + String.format("Timestamp for entity %s fo type %s is before the startTimestamp.",
-                jsonNode.get("hash"), jsonNode.get("type")));
+            LOG.debug(logPrefix + String.format("Timestamp %s is before the startTimestamp: %s.",
+                dateTime, element));
         } else {
             populateTableRowFields(row, element);
+            String entityId = element;
+            if (jsonNode.get("hash") != null) {
+                entityId = jsonNode.get("hash").asText();
+            } else if (jsonNode.get("transaction_hash") != null) {
+                entityId = jsonNode.get("transaction_hash").asText();
+            } else if (jsonNode.get("transaction_hash") != null) {
+                entityId = jsonNode.get("transaction_hash").asText();
+            }  else if (jsonNode.get("address") != null) {
+                entityId = jsonNode.get("address").asText();
+            }
             LOG.info(logPrefix + String.format("Writing table row for entity %s of type %s.",
-                jsonNode.get("hash"), jsonNode.get("type")));
+                entityId, jsonNode.get("type")));
             c.output(row);
         }
     }
