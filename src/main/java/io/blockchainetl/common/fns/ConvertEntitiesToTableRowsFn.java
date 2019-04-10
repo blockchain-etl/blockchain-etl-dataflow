@@ -21,7 +21,7 @@ public abstract class ConvertEntitiesToTableRowsFn extends ErrorHandlingDoFn<Str
     private Boolean addTimestampMonthColumn = true;
 
 
-    public ConvertEntitiesToTableRowsFn(String startTimestamp, Long allowedTimestampSkewSeconds, String logPrefix, 
+    public ConvertEntitiesToTableRowsFn(String startTimestamp, Long allowedTimestampSkewSeconds, String logPrefix,
         Boolean addTimestampMonthColumn) {
         this.startTimestamp = startTimestamp;
         this.allowedTimestampSkewSeconds = allowedTimestampSkewSeconds;
@@ -55,30 +55,36 @@ public abstract class ConvertEntitiesToTableRowsFn extends ErrorHandlingDoFn<Str
 
         ZonedDateTime currentDateTime = ZonedDateTime.now();
 
-        if (this.allowedTimestampSkewSeconds != null &&
-            ChronoUnit.SECONDS.between(dateTime, currentDateTime) > this.allowedTimestampSkewSeconds
-            ) {
-            LOG.error(logPrefix + String.format("Timestamp %s exceeds the maximum allowed time skew: %s.",
-                dateTime, element));
+        String entityId = getEntityId(element, jsonNode);
+
+        if (this.allowedTimestampSkewSeconds != null
+            && ChronoUnit.SECONDS.between(dateTime, currentDateTime) > this.allowedTimestampSkewSeconds) {
+            LOG.error(logPrefix + String.format("Timestamp %s for entity %s of type %s exceeds the maximum allowed "
+                    + "time skew.",
+                dateTime, entityId, jsonNode.get("type")));
         } else if (this.startTimestamp != null && dateTime.isBefore(TimeUtils.parseDateTime(this.startTimestamp))) {
-            LOG.debug(logPrefix + String.format("Timestamp %s is before the startTimestamp: %s.",
-                dateTime, element));
+            LOG.debug(logPrefix + String.format("Timestamp %s for entity %s of type %s is before the startTimestamp.",
+                dateTime, entityId, jsonNode.get("type")));
         } else {
             populateTableRowFields(row, element);
-            String entityId = element;
-            if (jsonNode.get("hash") != null) {
-                entityId = jsonNode.get("hash").asText();
-            } else if (jsonNode.get("transaction_hash") != null) {
-                entityId = jsonNode.get("transaction_hash").asText();
-            } else if (jsonNode.get("transaction_hash") != null) {
-                entityId = jsonNode.get("transaction_hash").asText();
-            }  else if (jsonNode.get("address") != null) {
-                entityId = jsonNode.get("address").asText();
-            }
             LOG.info(logPrefix + String.format("Writing table row for entity %s of type %s.",
                 entityId, jsonNode.get("type")));
             c.output(row);
         }
+    }
+
+    private String getEntityId(String element, JsonNode jsonNode) {
+        String entityId = element;
+        if (jsonNode.get("hash") != null) {
+            entityId = jsonNode.get("hash").asText();
+        } else if (jsonNode.get("transaction_hash") != null) {
+            entityId = jsonNode.get("transaction_hash").asText();
+        } else if (jsonNode.get("transaction_hash") != null) {
+            entityId = jsonNode.get("transaction_hash").asText();
+        } else if (jsonNode.get("address") != null) {
+            entityId = jsonNode.get("address").asText();
+        }
+        return entityId;
     }
 
     protected abstract void populateTableRowFields(TableRow row, String element);
