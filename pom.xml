@@ -21,7 +21,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>io.blockchainetl</groupId>
-  <artifactId>bitcoin-etl-dataflow</artifactId>
+  <artifactId>blockchain-etl-dataflow</artifactId>
   <version>0.1</version>
 
   <packaging>jar</packaging>
