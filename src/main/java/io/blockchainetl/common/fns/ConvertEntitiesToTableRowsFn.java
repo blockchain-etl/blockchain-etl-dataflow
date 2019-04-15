@@ -79,8 +79,6 @@ public abstract class ConvertEntitiesToTableRowsFn extends ErrorHandlingDoFn<Str
             entityId = jsonNode.get("hash").asText();
         } else if (jsonNode.get("transaction_hash") != null) {
             entityId = jsonNode.get("transaction_hash").asText();
-        } else if (jsonNode.get("transaction_hash") != null) {
-            entityId = jsonNode.get("transaction_hash").asText();
         } else if (jsonNode.get("address") != null) {
             entityId = jsonNode.get("address").asText();
         }
