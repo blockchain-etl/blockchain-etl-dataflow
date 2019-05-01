@@ -21,13 +21,13 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>io.blockchainetl</groupId>
-  <artifactId>bitcoin-etl-dataflow</artifactId>
+  <artifactId>blockchain-etl-dataflow</artifactId>
   <version>0.1</version>
 
   <packaging>jar</packaging>
 
   <properties>
-    <beam.version>2.10.0</beam.version>
+    <beam.version>2.11.0</beam.version>
 
     <bigquery.version>v2-rev20181104-1.27.0</bigquery.version>
     <google-clients.version>1.27.0</google-clients.version>
