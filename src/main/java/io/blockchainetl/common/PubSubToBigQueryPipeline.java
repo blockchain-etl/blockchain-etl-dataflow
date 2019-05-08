@@ -28,6 +28,8 @@ import java.util.Map;
 public class PubSubToBigQueryPipeline {
 
     private static final Logger LOG = LoggerFactory.getLogger(PubSubToBigQueryPipeline.class);
+    
+    private static final String PUBSUB_ID_ATTRIBUTE = "item_id";
 
     public static void runPipeline(
         PubSubToBigQueryPipelineOptions options, 
@@ -80,7 +82,7 @@ public class PubSubToBigQueryPipeline {
         String bigQueryTable
     ) {
         PCollection<String> inputFromPubSub = p.apply(namePrefix + "ReadFromPubSub",
-            PubsubIO.readStrings().fromSubscription(pubSubSubSubscription));
+            PubsubIO.readStrings().fromSubscription(pubSubSubSubscription).withIdAttribute(PUBSUB_ID_ATTRIBUTE));
 
         PCollection<TableRow> tableRows = buildPipeline(
             namePrefix,
