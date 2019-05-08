@@ -77,12 +77,12 @@ public class PubSubToBigQueryPipeline {
     public static PCollection<TableRow> buildPipeline(
         Pipeline p,
         String namePrefix,
-        String pubSubSubSubscription,
+        String pubSubSubscription,
         DoFn<String, TableRow> convertFn,
         String bigQueryTable
     ) {
         PCollection<String> inputFromPubSub = p.apply(namePrefix + "ReadFromPubSub",
-            PubsubIO.readStrings().fromSubscription(pubSubSubSubscription).withIdAttribute(PUBSUB_ID_ATTRIBUTE));
+            PubsubIO.readStrings().fromSubscription(pubSubSubscription).withIdAttribute(PUBSUB_ID_ATTRIBUTE));
 
         PCollection<TableRow> tableRows = buildPipeline(
             namePrefix,
@@ -123,7 +123,7 @@ public class PubSubToBigQueryPipeline {
         return input.apply(namePrefix + "ConvertToTableRows", ParDo.of(convertFn));
     }
 
-    public static DoFn<String, TableRow> createConvertFn(
+    private static DoFn<String, TableRow> createConvertFn(
         Class<? extends DoFn<String, TableRow>> clazz, String startTimestamp, Long allowedTimestampSkewSeconds,
         String logPrefix) {
         try {
