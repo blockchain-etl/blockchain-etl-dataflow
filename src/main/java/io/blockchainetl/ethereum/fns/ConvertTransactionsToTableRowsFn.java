@@ -24,7 +24,7 @@ public class ConvertTransactionsToTableRowsFn extends ConvertEntitiesToTableRows
         row.set("transaction_index", transaction.getTransactionIndex());
         row.set("from_address", transaction.getFromAddress());
         row.set("to_address", transaction.getToAddress());
-        row.set("value", transaction.getValue());
+        row.set("value", transaction.getValue() != null ? transaction.getValue().toString() : null);
         row.set("gas", transaction.getGas());
         row.set("gas_price", transaction.getGasPrice());
         row.set("input", transaction.getInput());

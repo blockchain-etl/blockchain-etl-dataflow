@@ -26,7 +26,7 @@ public class ConvertTracesToTableRowsFn extends ConvertEntitiesToTableRowsFn {
         row.set("transaction_index", trace.getTransactionIndex());
         row.set("from_address", trace.getFromAddress());
         row.set("to_address", trace.getToAddress());
-        row.set("value", trace.getValue());
+        row.set("value", trace.getValue() != null ? trace.getValue().toString() : null);
         row.set("input", trace.getInput());
         row.set("output", trace.getOutput());
         row.set("trace_type", trace.getTraceType());
