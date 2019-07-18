@@ -22,7 +22,7 @@ public class ConvertTokenTransfersToTableRowsFn extends ConvertEntitiesToTableRo
         row.set("token_address", tokenTransfer.getTokenAddress());
         row.set("from_address", tokenTransfer.getFromAddress());
         row.set("to_address", tokenTransfer.getToAddress());
-        row.set("value", tokenTransfer.getValue());
+        row.set("value", tokenTransfer.getValue() != null ? tokenTransfer.getValue().toString() : null);
         row.set("transaction_hash", tokenTransfer.getTransactionHash());
         row.set("log_index", tokenTransfer.getLogIndex());
         row.set("block_number", tokenTransfer.getBlockNumber());
