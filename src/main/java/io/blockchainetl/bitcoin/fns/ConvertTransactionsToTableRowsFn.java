@@ -33,8 +33,8 @@ public class ConvertTransactionsToTableRowsFn extends ConvertEntitiesToTableRows
         row.set("block_number", transaction.getBlockNumber());
         row.set("input_count", transaction.getInputCount());
         row.set("output_count", transaction.getOutputCount());
-        row.set("input_value", transaction.getInputValue());
-        row.set("output_value", transaction.getOutputValue());
+        row.set("input_value", transaction.getInputValue() != null ? transaction.getInputValue().toString() : null);
+        row.set("output_value", transaction.getOutputValue() != null ? transaction.getOutputValue().toString() : null);
         row.set("is_coinbase", transaction.getCoinbase());
         row.set("fee", transaction.getFee());
 
@@ -59,7 +59,7 @@ public class ConvertTransactionsToTableRowsFn extends ConvertEntitiesToTableRows
                 tableRow.set("required_signatures", input.getRequiredSignatures());
                 tableRow.set("type", input.getType());
                 tableRow.set("addresses", input.getAddresses());
-                tableRow.set("value", input.getValue());
+                tableRow.set("value", input.getValue() != null ? input.getValue().toString() : null);
                 result.add(tableRow);
             }
         }
@@ -77,7 +77,7 @@ public class ConvertTransactionsToTableRowsFn extends ConvertEntitiesToTableRows
                 tableRow.set("required_signatures", output.getRequiredSignatures());
                 tableRow.set("type", output.getType());
                 tableRow.set("addresses", output.getAddresses());
-                tableRow.set("value", output.getValue());
+                tableRow.set("value", output.getValue() != null ? output.getValue().toString() : null);
                 result.add(tableRow);
             }
         }
