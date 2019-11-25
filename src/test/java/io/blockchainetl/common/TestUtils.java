@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +20,11 @@ public class TestUtils {
 
     public static List<String> readLines(String fileName) throws IOException {
         ClassLoader classLoader = TestUtils.class.getClassLoader();
-        File file = new File(classLoader.getResource(fileName).getFile());
+        URL resource = classLoader.getResource(fileName);
+        if (resource == null) {
+            throw new IllegalArgumentException("The file " + fileName + " doesn't exist.");
+        }
+        File file = new File(resource.getFile());
 
         List<String> result = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {

@@ -19,6 +19,7 @@ public abstract class ConvertEntitiesToTableRowsFn extends ErrorHandlingDoFn<Str
     private Long allowedTimestampSkewSeconds;
     private String logPrefix = "";
     private Boolean addTimestampMonthColumn = true;
+    private String timestampParserKey;
 
 
     public ConvertEntitiesToTableRowsFn(String startTimestamp, Long allowedTimestampSkewSeconds, String logPrefix,
@@ -27,6 +28,17 @@ public abstract class ConvertEntitiesToTableRowsFn extends ErrorHandlingDoFn<Str
         this.allowedTimestampSkewSeconds = allowedTimestampSkewSeconds;
         this.logPrefix = logPrefix;
         this.addTimestampMonthColumn = addTimestampMonthColumn;
+        this.timestampParserKey = TimestampParserRepository.KEY_UNIX;
+    }
+
+
+    public ConvertEntitiesToTableRowsFn(String startTimestamp, Long allowedTimestampSkewSeconds, String logPrefix,
+        Boolean addTimestampMonthColumn, String timestampParserKey) {
+        this.startTimestamp = startTimestamp;
+        this.allowedTimestampSkewSeconds = allowedTimestampSkewSeconds;
+        this.logPrefix = logPrefix;
+        this.addTimestampMonthColumn = addTimestampMonthColumn;
+        this.timestampParserKey = timestampParserKey;
     }
 
     @Override
@@ -46,8 +58,10 @@ public abstract class ConvertEntitiesToTableRowsFn extends ErrorHandlingDoFn<Str
 
         TableRow row = new TableRow();
 
-        long timestamp = jsonNode.get(timestampFieldName).getLongValue();
-        ZonedDateTime dateTime = TimeUtils.convertToZonedDateTime(timestamp);
+        JsonNode timestampNode = jsonNode.get(timestampFieldName);
+        TimestampParser timestampParser = TimestampParserRepository.PARSERS.get(this.timestampParserKey);
+        ZonedDateTime dateTime = timestampParser.parse(timestampNode);
+
         row.set(timestampFieldName, TimeUtils.formatTimestamp(dateTime));
         if (addTimestampMonthColumn) {
             row.set(timestampFieldName + "_month", TimeUtils.formatDate(dateTime.withDayOfMonth(1)));
@@ -76,7 +90,7 @@ public abstract class ConvertEntitiesToTableRowsFn extends ErrorHandlingDoFn<Str
     private String getEntityId(String element, JsonNode jsonNode) {
         String entityId = element;
         if (jsonNode.get("item_id") != null && jsonNode.get("item_id").asText() != null) {
-            entityId = jsonNode.get("item_id").asText(); 
+            entityId = jsonNode.get("item_id").asText();
         } else if (jsonNode.get("hash") != null && jsonNode.get("hash").asText() != null) {
             entityId = jsonNode.get("hash").asText();
         } else if (jsonNode.get("transaction_hash") != null && jsonNode.get("transaction_hash").asText() != null) {
