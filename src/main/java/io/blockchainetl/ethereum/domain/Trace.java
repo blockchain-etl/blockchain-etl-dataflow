@@ -72,6 +72,10 @@ public class Trace {
     private Long status;
 
     @Nullable
+    @JsonProperty("trace_id")
+    private String traceId;
+
+    @Nullable
     @JsonProperty("block_timestamp")
     private Long blockTimestamp;
 
@@ -213,6 +217,14 @@ public class Trace {
         this.status = status;
     }
 
+    public String getTraceId() {
+        return traceId;
+    }
+
+    public void setTraceId(String traceId) {
+        this.traceId = traceId;
+    }
+
     public Long getBlockTimestamp() {
         return blockTimestamp;
     }
@@ -262,6 +274,7 @@ public class Trace {
             Objects.equal(traceAddress, trace.traceAddress) &&
             Objects.equal(error, trace.error) &&
             Objects.equal(status, trace.status) &&
+            Objects.equal(traceId, trace.traceId) &&
             Objects.equal(blockTimestamp, trace.blockTimestamp) &&
             Objects.equal(blockNumber, trace.blockNumber) &&
             Objects.equal(blockHash, trace.blockHash);
@@ -269,10 +282,10 @@ public class Trace {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(transactionHash, transactionIndex, fromAddress, toAddress, value, input, output,
-            traceType,
-            callType, rewardType, gas, gasUsed, subtraces, traceAddress, error, status, blockTimestamp, blockNumber,
-            blockHash);
+        return Objects.hashCode(transactionHash, transactionIndex, fromAddress, toAddress, value,
+            input, output, traceType, callType, rewardType, gas, gasUsed, subtraces, traceAddress, error, status,
+            traceId,
+            blockTimestamp, blockNumber, blockHash);
     }
 
     @Override
@@ -294,6 +307,7 @@ public class Trace {
             .add("traceAddress", traceAddress)
             .add("error", error)
             .add("status", status)
+            .add("traceId", traceId)
             .add("blockTimestamp", blockTimestamp)
             .add("blockNumber", blockNumber)
             .add("blockHash", blockHash)

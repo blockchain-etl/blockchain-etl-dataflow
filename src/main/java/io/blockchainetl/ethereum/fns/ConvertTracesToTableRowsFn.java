@@ -38,6 +38,7 @@ public class ConvertTracesToTableRowsFn extends ConvertEntitiesToTableRowsFn {
         row.set("trace_address", convertTraceAddressToString(trace.getTraceAddress()));
         row.set("error", trace.getError());
         row.set("status", trace.getStatus());
+        row.set("trace_id", trace.getTraceId());
         row.set("block_number", trace.getBlockNumber());
         row.set("block_hash", trace.getBlockHash());
     }
