@@ -82,6 +82,10 @@ public class Block {
     @JsonProperty("transaction_count")
     private Long transactionCount;
 
+    @Nullable
+    @JsonProperty("base_fee_per_gas")
+    private Long baseFeePerGas;
+
     public Block() {}
 
     public String getType() {
@@ -236,6 +240,11 @@ public class Block {
         this.transactionCount = transactionCount;
     }
 
+    public Long getBaseFeePerGas() { return baseFeePerGas; }
+
+    public void setBaseFeePerGas(Long baseFeePerGas) { this.baseFeePerGas = baseFeePerGas; }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -263,7 +272,8 @@ public class Block {
             Objects.equal(gasLimit, block.gasLimit) &&
             Objects.equal(gasUsed, block.gasUsed) &&
             Objects.equal(timestamp, block.timestamp) &&
-            Objects.equal(transactionCount, block.transactionCount);
+            Objects.equal(transactionCount, block.transactionCount) &&
+            Objects.equal(baseFeePerGas, block.baseFeePerGas);
     }
 
     @Override
@@ -271,7 +281,7 @@ public class Block {
         return Objects.hashCode(type, number, hash, parentHash, nonce, sha3Uncles, logsBloom, transactionsRoot,
             stateRoot,
             receiptsRoot, miner, difficulty, totalDifficulty, size, extraData, gasLimit, gasUsed, timestamp,
-            transactionCount);
+            transactionCount, baseFeePerGas);
     }
 
     @Override
@@ -296,6 +306,7 @@ public class Block {
             .add("gasUsed", gasUsed)
             .add("timestamp", timestamp)
             .add("transactionCount", transactionCount)
+            .add("baseFeePerGas", baseFeePerGas)
             .toString();
     }
 }

@@ -8,7 +8,7 @@ mvn -e -Pdataflow-runner compile exec:java \
 --tempLocation=gs://your-temp-bucket/dataflow \
 --project=your-project \
 --runner=DataflowRunner \
---jobName=ethereum-pubsub-to-bigquery \
+--jobName=ethereum-pubsub-to-bigquery-`date +"%Y%m%d-%H%M%S"` \
 --workerMachineType=n1-standard-1 \
 --maxNumWorkers=1 \
 --diskSizeGb=30 \
