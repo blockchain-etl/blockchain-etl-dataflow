@@ -78,6 +78,22 @@ public class Transaction {
     @Nullable
     @JsonProperty("block_timestamp")
     private Long blockTimestamp;
+
+    @Nullable
+    @JsonProperty("max_fee_per_gas")
+    private Long maxFeePerGas;
+
+    @Nullable
+    @JsonProperty("max_priority_fee_per_gas")
+    private Long maxPriorityFeePerGas;
+
+    @Nullable
+    @JsonProperty("transaction_type")
+    private Long transactionType;
+
+    @Nullable
+    @JsonProperty("receipt_effective_gas_price")
+    private Long receiptEffectiveGasPrice;
     
     public Transaction() {}
 
@@ -225,6 +241,22 @@ public class Transaction {
         this.blockTimestamp = blockTimestamp;
     }
 
+    public Long getMaxFeePerGas() { return maxFeePerGas; }
+
+    public void setMaxFeePerGas(Long maxFeePerGas) { this.maxFeePerGas = maxFeePerGas; }
+
+    public Long getMaxPriorityFeePerGas() { return maxPriorityFeePerGas; }
+
+    public void setMaxPriorityFeePerGas(Long maxPriorityFeePerGas) { this.maxPriorityFeePerGas = maxPriorityFeePerGas; }
+
+    public Long getTransactionType() { return transactionType; }
+
+    public void setTransactionType(Long transactionType) { this.transactionType = transactionType; }
+
+    public Long getReceiptEffectiveGasPrice() { return receiptEffectiveGasPrice; }
+
+    public void setReceiptEffectiveGasPrice(Long receiptEffectiveGasPrice) { this.receiptEffectiveGasPrice = receiptEffectiveGasPrice; }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -251,7 +283,11 @@ public class Transaction {
             Objects.equal(receiptStatus, that.receiptStatus) &&
             Objects.equal(blockNumber, that.blockNumber) &&
             Objects.equal(blockHash, that.blockHash) &&
-            Objects.equal(blockTimestamp, that.blockTimestamp);
+            Objects.equal(blockTimestamp, that.blockTimestamp) &&
+            Objects.equal(maxFeePerGas, that.maxFeePerGas) &&
+            Objects.equal(maxPriorityFeePerGas, that.maxPriorityFeePerGas) &&
+            Objects.equal(transactionType, that.transactionType) &&
+            Objects.equal(receiptEffectiveGasPrice, that.receiptEffectiveGasPrice);
     }
 
     @Override
@@ -259,7 +295,7 @@ public class Transaction {
         return Objects.hashCode(type, hash, nonce, transactionIndex, fromAddress, toAddress, value, gas, gasPrice,
             input,
             receiptCumulativeGasUsed, receiptGasUsed, receiptContractAddress, receiptRoot, receiptStatus, blockNumber,
-            blockHash, blockTimestamp);
+            blockHash, blockTimestamp, maxFeePerGas, maxPriorityFeePerGas, transactionType, receiptEffectiveGasPrice);
     }
 
     @Override
@@ -283,6 +319,10 @@ public class Transaction {
             .add("blockNumber", blockNumber)
             .add("blockHash", blockHash)
             .add("blockTimestamp", blockTimestamp)
+            .add("maxFeePerGas", maxFeePerGas)
+            .add("maxPriorityFeePerGas", maxPriorityFeePerGas)
+            .add("transactionType", transactionType)
+            .add("receiptEffectiveGasPrice", receiptEffectiveGasPrice)
             .toString();
     }
 }
