@@ -38,6 +38,6 @@ public class ConvertTransactionsToTableRowsFn extends ConvertEntitiesToTableRows
         row.set("max_fee_per_gas", transaction.getMaxFeePerGas());
         row.set("max_priority_fee_per_gas", transaction.getMaxPriorityFeePerGas());
         row.set("transaction_type", transaction.getTransactionType());
-        row.set("effective_gas_price", transaction.getEffectiveGasPrice());
+        row.set("receipt_effective_gas_price", transaction.getReceiptEffectiveGasPrice());
     }
 }

@@ -92,8 +92,8 @@ public class Transaction {
     private Long transactionType;
 
     @Nullable
-    @JsonProperty("effective_gas_price")
-    private Long effectiveGasPrice;
+    @JsonProperty("receipt_effective_gas_price")
+    private Long receiptEffectiveGasPrice;
     
     public Transaction() {}
 
@@ -253,9 +253,9 @@ public class Transaction {
 
     public void setTransactionType(Long transactionType) { this.transactionType = transactionType; }
 
-    public Long getEffectiveGasPrice() { return effectiveGasPrice; }
+    public Long getReceiptEffectiveGasPrice() { return receiptEffectiveGasPrice; }
 
-    public void setEffectiveGasPrice(Long effectiveGasPrice) { this.effectiveGasPrice = effectiveGasPrice; }
+    public void setReceiptEffectiveGasPrice(Long receiptEffectiveGasPrice) { this.receiptEffectiveGasPrice = receiptEffectiveGasPrice; }
 
     @Override
     public boolean equals(Object o) {
@@ -287,7 +287,7 @@ public class Transaction {
             Objects.equal(maxFeePerGas, that.maxFeePerGas) &&
             Objects.equal(maxPriorityFeePerGas, that.maxPriorityFeePerGas) &&
             Objects.equal(transactionType, that.transactionType) &&
-            Objects.equal(effectiveGasPrice, that.effectiveGasPrice);
+            Objects.equal(receiptEffectiveGasPrice, that.receiptEffectiveGasPrice);
     }
 
     @Override
@@ -295,7 +295,7 @@ public class Transaction {
         return Objects.hashCode(type, hash, nonce, transactionIndex, fromAddress, toAddress, value, gas, gasPrice,
             input,
             receiptCumulativeGasUsed, receiptGasUsed, receiptContractAddress, receiptRoot, receiptStatus, blockNumber,
-            blockHash, blockTimestamp, maxFeePerGas, maxPriorityFeePerGas, transactionType, effectiveGasPrice);
+            blockHash, blockTimestamp, maxFeePerGas, maxPriorityFeePerGas, transactionType, receiptEffectiveGasPrice);
     }
 
     @Override
@@ -322,7 +322,7 @@ public class Transaction {
             .add("maxFeePerGas", maxFeePerGas)
             .add("maxPriorityFeePerGas", maxPriorityFeePerGas)
             .add("transactionType", transactionType)
-            .add("effectiveGasPrice", effectiveGasPrice)
+            .add("receiptEffectiveGasPrice", receiptEffectiveGasPrice)
             .toString();
     }
 }
