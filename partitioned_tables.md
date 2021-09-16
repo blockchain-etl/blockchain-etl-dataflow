@@ -66,3 +66,5 @@ Verify the number of tables (should be 8194):
 SELECT *
 FROM `<project>.crypto_ethereum_partitioned.__TABLES__`
 ```
+
+Use `deploy-ethereum-partitioned.sh` in the root of the repo to deploy a Dataflow job to populate the tables.
