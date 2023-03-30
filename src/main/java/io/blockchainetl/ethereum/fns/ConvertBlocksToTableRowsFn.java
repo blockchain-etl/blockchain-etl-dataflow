@@ -2,6 +2,7 @@ package io.blockchainetl.ethereum.fns;
 
 import com.google.api.services.bigquery.model.TableRow;
 import io.blockchainetl.ethereum.domain.Block;
+import io.blockchainetl.ethereum.domain.Withdrawal;
 import io.blockchainetl.common.utils.JsonUtils;
 import io.blockchainetl.common.fns.ConvertEntitiesToTableRowsFn;
 
@@ -39,5 +40,25 @@ public class ConvertBlocksToTableRowsFn extends ConvertEntitiesToTableRowsFn {
         row.set("gas_used", block.getGasUsed());
         row.set("transaction_count", block.getTransactionCount());
         row.set("base_fee_per_gas", block.getBaseFeePerGas());
+        row.set("withdrawals_root", block.getWithdrawalsRoot());
+        row.set("withdrawals", convertWithdrawalsToTableRows(block.getWithdrawals()));
+    }
+
+    private TableRow[] convertWithdrawalsToTableRows(Withdrawal[] withdrawals) {
+        if (withdrawals == null) {
+            return null;
+        }
+
+        TableRow[] rows = new TableRow[withdrawals.length];
+        for (int i = 0; i < withdrawals.length; i++) {
+            Withdrawal withdrawal = withdrawals[i];
+            TableRow row = new TableRow();
+            row.set("index", withdrawal.getIndex());
+            row.set("validator_index", withdrawal.getValidatorIndex());
+            row.set("address", withdrawal.getAddress());
+            row.set("amount", withdrawal.getAmount());
+            rows[i] = row;
+        }
+        return rows;
     }
 }

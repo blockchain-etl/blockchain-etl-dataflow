@@ -86,6 +86,14 @@ public class Block {
     @JsonProperty("base_fee_per_gas")
     private Long baseFeePerGas;
 
+    @Nullable
+    @JsonProperty("withdrawals_root")
+    private String withdrawalsRoot;
+
+    @Nullable
+    @JsonProperty("withdrawals")
+    private Withdrawal[] withdrawals;
+
     public Block() {}
 
     public String getType() {
@@ -244,6 +252,13 @@ public class Block {
 
     public void setBaseFeePerGas(Long baseFeePerGas) { this.baseFeePerGas = baseFeePerGas; }
 
+    public String getWithdrawalsRoot() { return withdrawalsRoot; }
+
+    public void setWithdrawalsRoot(String withdrawalsRoot) { this.withdrawalsRoot = withdrawalsRoot; }
+
+    public Withdrawal[] getWithdrawals() { return withdrawals; }
+
+    public void setWithdrawals(Withdrawal[] withdrawals) { this.withdrawals = withdrawals; }
 
     @Override
     public boolean equals(Object o) {
@@ -273,7 +288,9 @@ public class Block {
             Objects.equal(gasUsed, block.gasUsed) &&
             Objects.equal(timestamp, block.timestamp) &&
             Objects.equal(transactionCount, block.transactionCount) &&
-            Objects.equal(baseFeePerGas, block.baseFeePerGas);
+            Objects.equal(baseFeePerGas, block.baseFeePerGas) &&
+            Objects.equal(withdrawalsRoot, block.withdrawalsRoot) &&
+            Objects.equal(withdrawals, block.withdrawals);
     }
 
     @Override
@@ -281,7 +298,7 @@ public class Block {
         return Objects.hashCode(type, number, hash, parentHash, nonce, sha3Uncles, logsBloom, transactionsRoot,
             stateRoot,
             receiptsRoot, miner, difficulty, totalDifficulty, size, extraData, gasLimit, gasUsed, timestamp,
-            transactionCount, baseFeePerGas);
+            transactionCount, baseFeePerGas, withdrawalsRoot, withdrawals);
     }
 
     @Override
@@ -307,6 +324,8 @@ public class Block {
             .add("timestamp", timestamp)
             .add("transactionCount", transactionCount)
             .add("baseFeePerGas", baseFeePerGas)
+            .add("withdrawalsRoot", withdrawalsRoot)
+            .add("withdrawals", withdrawals)
             .toString();
     }
 }
