@@ -42,6 +42,11 @@ public class EthereumPubSubToBigQueryPipelineTest {
             "testdata/PubSubToBigQueryPipelineTest/ethereum/ethereumBlock1000000Expected.json",
             new ConvertBlocksToTableRowsFn("2015-01-01T00:00:00Z", Long.MAX_VALUE)
         );
+        testTemplate(
+            "testdata/PubSubToBigQueryPipelineTest/ethereum/ethereumGoerliBlock8700000.json",
+            "testdata/PubSubToBigQueryPipelineTest/ethereum/ethereumGoerliBlock8700000Expected.json",
+            new ConvertBlocksToTableRowsFn("2015-01-01T00:00:00Z", Long.MAX_VALUE)
+        );
     }
 
     @Test
