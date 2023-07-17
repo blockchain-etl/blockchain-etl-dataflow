@@ -1,0 +1,118 @@
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+name: Deploy blockchain etl datafow into GCP
+
+jobs:
+  terraform:
+    name: "Run Terraform"
+    runs-on: ubuntu-latest
+    environment: ${{ github.head_ref }}
+    permissions: write-all
+
+    steps:
+    - uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_wrapper: false
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - id: 'auth-server'
+      name: 'Authenticate to Google Cloud'
+      if: ${{ env.ACT == '' }}
+      uses: 'google-github-actions/auth@v1'
+      with:
+        token_format: 'access_token'
+        workload_identity_provider: 'projects/953944850513/locations/global/workloadIdentityPools/github/providers/github-provider'
+        service_account: 'im-org-tf@im-common-cicd.iam.gserviceaccount.com'
+
+    - name: Set env vars (dev)
+      if: endsWith(github.ref, '/develop')
+      run: |
+          echo "ENV=dev" >> $GITHUB_ENV
+
+    - name: Set env vars (prod)
+      if: endsWith(github.ref, '/master')
+      run: |
+          echo "ENV=prod" >> $GITHUB_ENV
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v1'
+      with:
+        version: '>= 363.0.0'
+
+    - name: Login to Google Artifact Repository
+      id: login-gar
+      run: |
+         gcloud auth configure-docker us-docker.pkg.dev
+
+    - name: Build, tag, and push image to Google Artifact Repository
+      id: build-image-ecr
+      run: |
+        make gcp.ar.push
+
+    - name: Terraform Init
+      working-directory: ./terraform
+      id: init
+      run: terraform init
+
+    - name: Terraform Workspace Selection
+      working-directory: ./terraform
+      id: select
+      run: terraform workspace select prod
+
+    - name: Terraform Validate
+      working-directory: ./terraform
+      id: validate
+      run: terraform validate -no-color
+
+    - name: Terraform Plan
+      working-directory: ./terraform
+      id: plan
+      if: github.event_name == 'pull_request'
+      run: |
+        out="$(terraform plan -no-color)"
+        out="${out//'%'/'%25'}"
+        out="${out//$'\n'/'%0A'}"
+        out="${out//$'\r'/'%0D'}"
+        echo "::set-output name=out::$out"
+      continue-on-error: true
+
+    - uses: actions/github-script@v6
+      if: github.event_name == 'pull_request'
+      env:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+      with:  
+        script: |
+          const output = `#### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+          #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+          #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+          
+          <details><summary>Show Plan</summary>
+          
+          \`\`\`terraform\n
+          ${{ steps.plan.outputs.out }}
+          \n\`\`\`
+          
+          </details>
+          
+          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Workflow: \`${{ github.workflow }}\`*`;
+            
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          })
+
+    - name: Terraform Plan Status
+      if: steps.plan.outcome == 'failure'
+      run: exit 1
+
+    - name: Terraform Apply
+      working-directory: ./terraform
+      run: terraform apply -auto-approve -input=false

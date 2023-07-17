@@ -1,8 +1,0 @@
-[
-    {
-        "transformNamePrefix": "immutable_zkevm_13372_",
-        "pubSubSubscriptionPrefix": "projects/dev-im-data/subscriptions/immutable-zkevm-13372-dataflow",
-        "bigQueryDataset": "raw_immutable_zkevm_13372",
-        "startTimestamp": "2019-03-02T00:00:00Z"
-    }
-]

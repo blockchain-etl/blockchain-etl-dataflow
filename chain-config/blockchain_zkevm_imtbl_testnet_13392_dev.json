@@ -1,0 +1,8 @@
+[
+    {
+        "transformNamePrefix": "blockchain_zkevm_imtbl_testnet_13392_",
+        "pubSubSubscriptionPrefix": "projects/dev-im-data/subscriptions/blockchain-zkevm-imtbl-testnet-13392-dataflow",
+        "bigQueryDataset": "raw_blockchain_zkevm_imtbl_testnet_13392",
+        "startTimestamp": "2019-03-02T00:00:00Z"
+    }
+]
