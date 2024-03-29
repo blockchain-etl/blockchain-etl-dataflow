@@ -8,9 +8,9 @@ mvn -e -Pdataflow-runner compile exec:java \
 --tempLocation=gs://crypto-etl-ethereum-dev-dataflow-temp/dataflow \
 --project=crypto-etl-ethereum-dev \
 --runner=DataflowRunner \
---jobName=ethereum-pubsub-to-bigquery-5 \
+--jobName=ethereum-pubsub-to-bigquery-6 \
 --workerMachineType=n1-standard-1 \
---maxNumWorkers=1 \
+--maxNumWorkers=10 \
 --diskSizeGb=30 \
 --region=us-central1 \
 --zone=us-central1-a \
