@@ -8,6 +8,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.math.BigInteger;
+import java.util.List;
 
 @DefaultCoder(AvroCoder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -94,7 +95,23 @@ public class Transaction {
     @Nullable
     @JsonProperty("receipt_effective_gas_price")
     private Long receiptEffectiveGasPrice;
-    
+
+    @Nullable
+    @JsonProperty("max_fee_per_blob_gas")
+    private Long maxFeePerBlobGas;
+
+    @Nullable
+    @JsonProperty("blob_versioned_hashes")
+    private List<String> blobVersionedHashes;
+
+    @Nullable
+    @JsonProperty("receipt_blob_gas_price")
+    private Long receiptBlobGasPrice;
+
+    @Nullable
+    @JsonProperty("receipt_blob_gas_used")
+    private Long receiptBlobGasUsed;
+
     public Transaction() {}
 
     public String getType() {
@@ -257,6 +274,38 @@ public class Transaction {
 
     public void setReceiptEffectiveGasPrice(Long receiptEffectiveGasPrice) { this.receiptEffectiveGasPrice = receiptEffectiveGasPrice; }
 
+    public Long getMaxFeePerBlobGas() {
+        return maxFeePerBlobGas;
+    }
+
+    public void setMaxFeePerBlobGas(Long maxFeePerBlobGas) {
+        this.maxFeePerBlobGas = maxFeePerBlobGas;
+    }
+
+    public List<String> getBlobVersionedHashes() {
+        return blobVersionedHashes;
+    }
+
+    public void setBlobVersionedHashes(List<String> blobVersionedHashes) {
+        this.blobVersionedHashes = blobVersionedHashes;
+    }
+
+    public Long getReceiptBlobGasPrice() {
+        return receiptBlobGasPrice;
+    }
+
+    public void setReceiptBlobGasPrice(Long receiptBlobGasPrice) {
+        this.receiptBlobGasPrice = receiptBlobGasPrice;
+    }
+
+    public Long getReceiptBlobGasUsed() {
+        return receiptBlobGasUsed;
+    }
+
+    public void setReceiptBlobGasUsed(Long receiptBlobGasUsed) {
+        this.receiptBlobGasUsed = receiptBlobGasUsed;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -287,7 +336,11 @@ public class Transaction {
             Objects.equal(maxFeePerGas, that.maxFeePerGas) &&
             Objects.equal(maxPriorityFeePerGas, that.maxPriorityFeePerGas) &&
             Objects.equal(transactionType, that.transactionType) &&
-            Objects.equal(receiptEffectiveGasPrice, that.receiptEffectiveGasPrice);
+            Objects.equal(receiptEffectiveGasPrice, that.receiptEffectiveGasPrice) &&
+            Objects.equal(maxFeePerBlobGas, that.maxFeePerBlobGas) &&
+            Objects.equal(blobVersionedHashes, that.blobVersionedHashes) &&
+            Objects.equal(receiptBlobGasPrice, that.receiptBlobGasPrice) &&
+            Objects.equal(receiptBlobGasUsed, that.receiptBlobGasUsed);
     }
 
     @Override
@@ -295,7 +348,8 @@ public class Transaction {
         return Objects.hashCode(type, hash, nonce, transactionIndex, fromAddress, toAddress, value, gas, gasPrice,
             input,
             receiptCumulativeGasUsed, receiptGasUsed, receiptContractAddress, receiptRoot, receiptStatus, blockNumber,
-            blockHash, blockTimestamp, maxFeePerGas, maxPriorityFeePerGas, transactionType, receiptEffectiveGasPrice);
+            blockHash, blockTimestamp, maxFeePerGas, maxPriorityFeePerGas, transactionType, receiptEffectiveGasPrice,
+            maxFeePerBlobGas, blobVersionedHashes, receiptBlobGasPrice, receiptBlobGasUsed);
     }
 
     @Override
@@ -323,6 +377,10 @@ public class Transaction {
             .add("maxPriorityFeePerGas", maxPriorityFeePerGas)
             .add("transactionType", transactionType)
             .add("receiptEffectiveGasPrice", receiptEffectiveGasPrice)
+            .add("maxFeePerBlobGas", maxFeePerBlobGas)
+            .add("blobVersionedHashes", blobVersionedHashes)
+            .add("receiptBlobGasPrice", receiptBlobGasPrice)
+            .add("receiptBlobGasUsed", receiptBlobGasUsed)
             .toString();
     }
 }
