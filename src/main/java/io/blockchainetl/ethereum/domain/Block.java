@@ -94,6 +94,14 @@ public class Block {
     @JsonProperty("withdrawals")
     private Withdrawal[] withdrawals;
 
+    @Nullable
+    @JsonProperty("blob_gas_used")
+    private Long blobGasUsed;
+
+    @Nullable
+    @JsonProperty("excess_blob_gas")
+    private Long excessBlobGas;
+
     public Block() {}
 
     public String getType() {
@@ -260,6 +268,14 @@ public class Block {
 
     public void setWithdrawals(Withdrawal[] withdrawals) { this.withdrawals = withdrawals; }
 
+    public Long getBlobGasUsed() { return blobGasUsed; }
+
+    public void setBlobGasUsed(Long blobGasUsed) { this.blobGasUsed = blobGasUsed; }
+
+    public Long getExcessBlobGas() { return excessBlobGas; }
+
+    public void setExcessBlobGas(Long excessBlobGas) { this.excessBlobGas = excessBlobGas; }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -290,7 +306,9 @@ public class Block {
             Objects.equal(transactionCount, block.transactionCount) &&
             Objects.equal(baseFeePerGas, block.baseFeePerGas) &&
             Objects.equal(withdrawalsRoot, block.withdrawalsRoot) &&
-            Objects.equal(withdrawals, block.withdrawals);
+            Objects.equal(withdrawals, block.withdrawals) &&
+            Objects.equal(blobGasUsed, block.blobGasUsed) &&
+            Objects.equal(excessBlobGas, block.excessBlobGas);
     }
 
     @Override
@@ -298,7 +316,7 @@ public class Block {
         return Objects.hashCode(type, number, hash, parentHash, nonce, sha3Uncles, logsBloom, transactionsRoot,
             stateRoot,
             receiptsRoot, miner, difficulty, totalDifficulty, size, extraData, gasLimit, gasUsed, timestamp,
-            transactionCount, baseFeePerGas, withdrawalsRoot, withdrawals);
+            transactionCount, baseFeePerGas, withdrawalsRoot, withdrawals, blobGasUsed, excessBlobGas);
     }
 
     @Override
@@ -326,6 +344,8 @@ public class Block {
             .add("baseFeePerGas", baseFeePerGas)
             .add("withdrawalsRoot", withdrawalsRoot)
             .add("withdrawals", withdrawals)
+            .add("blobGasUsed", blobGasUsed)
+            .add("excessBlobGas", excessBlobGas)
             .toString();
     }
 }

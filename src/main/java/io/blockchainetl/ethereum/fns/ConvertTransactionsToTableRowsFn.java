@@ -39,5 +39,9 @@ public class ConvertTransactionsToTableRowsFn extends ConvertEntitiesToTableRows
         row.set("max_priority_fee_per_gas", transaction.getMaxPriorityFeePerGas());
         row.set("transaction_type", transaction.getTransactionType());
         row.set("receipt_effective_gas_price", transaction.getReceiptEffectiveGasPrice());
+        row.set("max_fee_per_blob_gas", transaction.getMaxFeePerBlobGas());
+        row.set("blob_versioned_hashes", transaction.getBlobVersionedHashes());
+        row.set("receipt_blob_gas_price", transaction.getReceiptBlobGasPrice());
+        row.set("receipt_blob_gas_used", transaction.getReceiptBlobGasUsed());
     }
 }

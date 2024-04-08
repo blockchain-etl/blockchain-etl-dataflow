@@ -42,6 +42,8 @@ public class ConvertBlocksToTableRowsFn extends ConvertEntitiesToTableRowsFn {
         row.set("base_fee_per_gas", block.getBaseFeePerGas());
         row.set("withdrawals_root", block.getWithdrawalsRoot());
         row.set("withdrawals", convertWithdrawalsToTableRows(block.getWithdrawals()));
+        row.set("blob_gas_used", block.getBlobGasUsed());
+        row.set("excess_blob_gas", block.getExcessBlobGas());
     }
 
     private TableRow[] convertWithdrawalsToTableRows(Withdrawal[] withdrawals) {
